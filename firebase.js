@@ -1,3 +1,4 @@
+
 import { initializeApp } from "firebase/app";
 
 import {
@@ -27,17 +28,16 @@ import {
 
 /* =====================================
    NEXORA FIREBASE CONFIGURATION
-   Replace these values with your
-   Firebase project's web configuration.
 ===================================== */
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAjYGvWfgEAe-wYGwAsa3wwN3_V09FDRXk",
+  authDomain: "nexora-fb9ed.firebaseapp.com",
+  projectId: "nexora-fb9ed",
+  storageBucket: "nexora-fb9ed.firebasestorage.app",
+  messagingSenderId: "1082698782543",
+  appId: "1:1082698782543:web:9ea8ac7e30647b3f25173a",
+  measurementId: "G-Q44VLSD8MT"
 };
 
 /* =====================================
@@ -51,7 +51,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 /* =====================================
-   AUTHENTICATION FUNCTIONS
+   USER AUTHENTICATION
 ===================================== */
 
 export async function registerUser(name, email, password) {
@@ -99,8 +99,7 @@ export function observeAuth(callback) {
 ===================================== */
 
 export async function getUserProfile(uid) {
-  const userRef = doc(db, "users", uid);
-  const snapshot = await getDoc(userRef);
+  const snapshot = await getDoc(doc(db, "users", uid));
 
   return snapshot.exists() ? snapshot.data() : null;
 }
@@ -121,9 +120,7 @@ export async function addEmployee(data) {
 }
 
 export async function getEmployees() {
-  const snapshot = await getDocs(
-    collection(db, "employees")
-  );
+  const snapshot = await getDocs(collection(db, "employees"));
 
   return snapshot.docs.map(item => ({
     id: item.id,
@@ -147,9 +144,7 @@ export async function addClient(data) {
 }
 
 export async function getClients() {
-  const snapshot = await getDocs(
-    collection(db, "clients")
-  );
+  const snapshot = await getDocs(collection(db, "clients"));
 
   return snapshot.docs.map(item => ({
     id: item.id,
@@ -179,12 +174,12 @@ export function listenToMessages(callback) {
   );
 
   return onSnapshot(messagesQuery, snapshot => {
-    const messages = snapshot.docs.map(item => ({
-      id: item.id,
-      ...item.data()
-    }));
-
-    callback(messages);
+    callback(
+      snapshot.docs.map(item => ({
+        id: item.id,
+        ...item.data()
+      }))
+    );
   });
 }
 
@@ -200,9 +195,7 @@ export async function createMeeting(data) {
 }
 
 export async function getMeetings() {
-  const snapshot = await getDocs(
-    collection(db, "meetings")
-  );
+  const snapshot = await getDocs(collection(db, "meetings"));
 
   return snapshot.docs.map(item => ({
     id: item.id,
@@ -211,7 +204,7 @@ export async function getMeetings() {
 }
 
 /* =====================================
-   FIREBASE EXPORTS
+   EXPORTS
 ===================================== */
 
 export {
