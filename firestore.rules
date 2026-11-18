@@ -1,0 +1,75 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function ownsDocument() {
+      return isSignedIn()
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    function createsForSelf() {
+      return isSignedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId;
+
+      allow read: if isSignedIn()
+        && request.auth.uid == userId;
+
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.role == resource.data.role;
+
+      allow delete: if false;
+    }
+
+    // Employees
+    match /employees/{id} {
+      allow create: if createsForSelf();
+      allow read, delete: if ownsDocument();
+      allow update: if ownsDocument()
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    // Clients
+    match /clients/{id} {
+      allow create: if createsForSelf();
+      allow read, delete: if ownsDocument();
+      allow update: if ownsDocument()
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    // Team messages
+    match /messages/{id} {
+      allow create: if createsForSelf();
+      allow read, delete: if ownsDocument();
+      allow update: if ownsDocument()
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    // Meetings
+    match /meetings/{id} {
+      allow create: if createsForSelf();
+      allow read, delete: if ownsDocument();
+      allow update: if ownsDocument()
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    // Deny all other documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
