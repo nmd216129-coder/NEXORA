@@ -1,31 +1,745 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>NEXORA | Business Management Platform</title>
-  <meta name="description" content="NEXORA - Business Management, Team Communication and Online Meeting Platform.">
-  <meta name="theme-color" content="#0b1424">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXORA — Business Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-light: #e0e7ff;
+      --bg: #f8fafc;
+      --bg-soft: #ffffff;
+      --bg-card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
 
-  <link rel="stylesheet" href="./style.css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ========== UTILS ========== */
+    .hidden { display: none !important; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.7rem 1.4rem; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+      border: none; cursor: pointer; transition: all 0.25s ease; text-decoration: none;
+    }
+    .btn-primary { background: var(--primary); color: #ffffff; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
+    .btn-danger { background: var(--danger); color: #ffffff; }
+    .btn-success { background: var(--success); color: #ffffff; }
+
+    input, select, textarea {
+      width: 100%; padding: 0.75rem 1rem; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text);
+      font-size: 0.95rem; outline: none; transition: border-color 0.25s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500; }
+
+    /* ========== LANDING ========== */
+    .landing { min-height: 100vh; }
+    .landing-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1200px; margin: 0 auto; padding: 1.2rem 1.5rem;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 0.6rem; font-weight: 800; font-size: 1.35rem;
+      color: #0f172a; text-decoration: none;
+    }
+    .logo-icon {
+      width: 38px; height: 38px; background: linear-gradient(135deg, #4f46e5, #818cf8);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      color: #ffffff; font-weight: 800;
+    }
+    .landing-hero {
+      max-width: 1200px; margin: 0 auto; padding: 5rem 1.5rem 4rem;
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center;
+    }
+    .landing-hero h1 {
+      font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 800; line-height: 1.15;
+      letter-spacing: -0.03em; margin-bottom: 1.2rem;
+    }
+    .landing-hero h1 span { color: #818cf8; }
+    .landing-hero p { color: var(--text-muted); font-size: 1.1rem; max-width: 480px; margin-bottom: 2rem; }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .landing-features {
+      max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 5rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.6rem; transition: transform 0.3s, border-color 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+    .feature-card .icon { font-size: 1.6rem; margin-bottom: 0.8rem; }
+    .feature-card h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ========== AUTH ========== */
+    .auth-page {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 2rem; background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 50%);
+    }
+    .auth-card {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: 16px;
+      padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: var(--shadow);
+    }
+    .auth-card h2 { font-size: 1.6rem; margin-bottom: 0.4rem; text-align: center; }
+    .auth-card .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .auth-switch { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); }
+    .auth-switch a { color: #818cf8; cursor: pointer; text-decoration: none; font-weight: 600; }
+
+    /* ========== APP SHELL ========== */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px; background: var(--bg-soft); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-header { padding: 1.4rem 1.3rem; border-bottom: 1px solid var(--border); }
+    .sidebar-nav { flex: 1; padding: 1rem 0.8rem; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+      border-radius: 10px; color: var(--text-muted); text-decoration: none;
+      font-size: 0.92rem; font-weight: 500; margin-bottom: 0.25rem; cursor: pointer;
+      transition: all 0.2s; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(79,70,229,0.1); color: var(--text); }
+    .nav-item.active { background: var(--primary); color: #ffffff; }
+    .nav-item .icon { font-size: 1.15rem; width: 24px; text-align: center; }
+    .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border); }
+    .user-info { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--primary);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;
+      color: #ffffff;
+    }
+    .user-info .name { font-size: 0.9rem; font-weight: 600; }
+    .user-info .role { font-size: 0.75rem; color: var(--text-muted); }
+
+    .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      height: 64px; border-bottom: 1px solid var(--border); background: var(--bg);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 1.8rem;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar h1 { font-size: 1.25rem; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 1rem; }
+    .content { padding: 1.8rem; flex: 1; }
+
+    /* Cards & Tables */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 1.8rem; }
+    .stat-card {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.4rem; transition: border-color 0.25s, box-shadow 0.25s;
+      box-shadow: var(--shadow);
+    }
+    .stat-card:hover { border-color: var(--primary); }
+    .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .stat-card .value { font-size: 1.7rem; font-weight: 800; }
+    .stat-card .change { font-size: 0.8rem; margin-top: 0.3rem; }
+    .change.up { color: var(--success); }
+    .change.down { color: var(--danger); }
+
+    .card {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+    .card-header h2 { font-size: 1.15rem; font-weight: 700; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-success { background: rgba(34,197,94,0.15); color: var(--success); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .badge-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .badge-info { background: rgba(79,70,229,0.15); color: #818cf8; }
+
+    /* Meeting Room */
+    .meeting-room {
+      display: grid; grid-template-columns: 1fr 320px; gap: 1.2rem; height: calc(100vh - 140px);
+    }
+    .video-area {
+      background: #f1f5f9; border-radius: var(--radius); position: relative;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .video-placeholder {
+      text-align: center; color: var(--text-muted);
+    }
+    .video-placeholder .big-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+    .meeting-controls {
+      position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 0.8rem; background: #ffffff; padding: 0.7rem 1.2rem;
+      border-radius: 999px; border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .control-btn {
+      width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+      background: #ffffff; color: var(--text); transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .control-btn:hover { background: var(--primary); color: #ffffff; }
+    .control-btn.danger { background: var(--danger); color: #ffffff; }
+    .control-btn.active { background: var(--primary); color: #ffffff; }
+
+    .chat-panel {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius);
+      display: flex; flex-direction: column;
+    }
+    .chat-header { padding: 1rem; border-bottom: 1px solid var(--border); font-weight: 600; }
+    .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; }
+    .chat-msg { max-width: 85%; }
+    .chat-msg.me { align-self: flex-end; }
+    .chat-msg .bubble {
+      padding: 0.6rem 0.9rem; border-radius: 12px; font-size: 0.88rem;
+      background: var(--bg); border: 1px solid var(--border);
+    }
+    .chat-msg.me .bubble { background: var(--primary); border-color: var(--primary); color: #ffffff; }
+    .chat-msg .meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .chat-input-area { padding: 0.8rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
+    .chat-input-area input { flex: 1; }
+
+    /* Participants grid */
+    .participants {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.8rem;
+      position: absolute; top: 1rem; left: 1rem; right: 1rem;
+    }
+    .participant {
+      background: var(--bg-soft); border-radius: 10px; padding: 0.8rem; text-align: center;
+      border: 1px solid var(--border);
+    }
+    .participant .avatar {
+      width: 48px; height: 48px; border-radius: 50%; background: var(--primary);
+      margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: #ffffff;
+    }
+    .participant .name { font-size: 0.8rem; font-weight: 500; }
+
+    /* Schedule */
+    .schedule-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .schedule-item {
+      display: flex; align-items: center; gap: 1rem; padding: 1rem;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    }
+    .schedule-time {
+      min-width: 90px; text-align: center; font-weight: 700; color: #818cf8;
+    }
+    .schedule-info { flex: 1; }
+    .schedule-info h4 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+    .schedule-info p { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .modal {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.8rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { margin-bottom: 1.3rem; font-size: 1.2rem; }
+    .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .landing-hero { grid-template-columns: 1fr; text-align: center; }
+      .landing-hero p { margin-left: auto; margin-right: auto; }
+      .hero-btns { justify-content: center; }
+      .landing-features { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .meeting-room { grid-template-columns: 1fr; height: auto; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .landing-features { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .mobile-menu-btn { display: block !important; }
+    }
+    .mobile-menu-btn { display: none; background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; }
+  </style>
 </head>
-
 <body>
-  <div id="root">
-    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1424;color:#d8bd83;font-family:Arial,sans-serif;text-align:center;">
+
+  <!-- ==================== LANDING PAGE ==================== -->
+  <div id="view-landing" class="landing">
+    <nav class="landing-nav">
+      <a href="#" class="logo"><div class="logo-icon">N</div> NEXORA</a>
+      <div style="display:flex;gap:1rem;">
+        <button class="btn btn-outline" onclick="showView('login')">Login</button>
+        <button class="btn btn-primary" onclick="showView('register')">Get Started</button>
+      </div>
+    </nav>
+
+    <section class="landing-hero">
       <div>
-        <h1 style="letter-spacing:6px;">NEXORA</h1>
-        <p style="color:#aab3c2;">Loading your business workspace...</p>
+        <h1>All-in-One Platform for <span>Modern Business</span></h1>
+        <p>Manage employees, clients, meetings, live video collaboration and chat — everything your team needs in one powerful dashboard.</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="showView('register')">Start Free Trial</button>
+          <button class="btn btn-outline" onclick="showView('login')">Login to Dashboard</button>
+        </div>
+      </div>
+      <div style="background:var(--bg-soft);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;">
+        <div style="font-size:3.5rem;margin-bottom:1rem;">📊</div>
+        <h3 style="margin-bottom:0.5rem;">Business Command Center</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;">Dashboard • Employees • Clients • Live Meetings • Chat</p>
+      </div>
+    </section>
+
+    <div class="landing-features">
+      <div class="feature-card"><div class="icon">👥</div><h3>Employee Management</h3><p>Add, edit and manage your team with roles and permissions.</p></div>
+      <div class="feature-card"><div class="icon">🤝</div><h3>Client Management</h3><p>Keep all client information organized and accessible.</p></div>
+      <div class="feature-card"><div class="icon">📹</div><h3>Live Video Meetings</h3><p>Group video calls with screen sharing support.</p></div>
+      <div class="feature-card"><div class="icon">💬</div><h3>Live Chat</h3><p>Real-time messaging for team collaboration.</p></div>
+      <div class="feature-card"><div class="icon">📅</div><h3>Meeting Schedule</h3><p>Plan and manage all your meetings in one place.</p></div>
+      <div class="feature-card"><div class="icon">🔐</div><h3>Admin Panel</h3><p>Full control over users, settings and permissions.</p></div>
+      <div class="feature-card"><div class="icon">📈</div><h3>Business Dashboard</h3><p>Key metrics and insights at a glance.</p></div>
+      <div class="feature-card"><div class="icon">🖥️</div><h3>Screen Sharing</h3><p>Share your screen during live meetings instantly.</p></div>
+    </div>
+  </div>
+
+  <!-- ==================== LOGIN ==================== -->
+  <div id="view-login" class="auth-page hidden">
+    <div class="auth-card">
+      <div class="logo" style="justify-content:center;margin-bottom:1.5rem;"><div class="logo-icon">N</div> NEXORA</div>
+      <h2>Welcome back</h2>
+      <p class="subtitle">Login to your business dashboard</p>
+      <form onsubmit="event.preventDefault(); login();">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="you@company.com" value="admin@nexora.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPass" placeholder="••••••••" value="demo123" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">Login</button>
+      </form>
+      <p class="auth-switch">Don't have an account? <a onclick="showView('register')">Register</a></p>
+      <p class="auth-switch" style="margin-top:0.6rem;"><a onclick="showView('landing')">← Back to Home</a></p>
+    </div>
+  </div>
+
+  <!-- ==================== REGISTER ==================== -->
+  <div id="view-register" class="auth-page hidden">
+    <div class="auth-card">
+      <div class="logo" style="justify-content:center;margin-bottom:1.5rem;"><div class="logo-icon">N</div> NEXORA</div>
+      <h2>Create Account</h2>
+      <p class="subtitle">Start managing your business today</p>
+      <form onsubmit="event.preventDefault(); register();">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="you@company.com" required>
+        </div>
+        <div class="form-group">
+          <label>Company Name</label>
+          <input type="text" placeholder="Your Company Ltd." required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="Create a strong password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">Create Account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a onclick="showView('login')">Login</a></p>
+      <p class="auth-switch" style="margin-top:0.6rem;"><a onclick="showView('landing')">← Back to Home</a></p>
+    </div>
+  </div>
+
+  <!-- ==================== APP (Dashboard etc) ==================== -->
+  <div id="view-app" class="app hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="logo" onclick="showAppPage('dashboard')"><div class="logo-icon">N</div> NEXORA</a>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="dashboard" onclick="showAppPage('dashboard')"><span class="icon">📊</span> Dashboard</button>
+        <button class="nav-item" data-page="employees" onclick="showAppPage('employees')"><span class="icon">👥</span> Employees</button>
+        <button class="nav-item" data-page="clients" onclick="showAppPage('clients')"><span class="icon">🤝</span> Clients</button>
+        <button class="nav-item" data-page="schedule" onclick="showAppPage('schedule')"><span class="icon">📅</span> Meeting Schedule</button>
+        <button class="nav-item" data-page="meeting" onclick="showAppPage('meeting')"><span class="icon">📹</span> Live Meeting</button>
+        <button class="nav-item" data-page="chat" onclick="showAppPage('chat')"><span class="icon">💬</span> Live Chat</button>
+        <button class="nav-item" data-page="admin" onclick="showAppPage('admin')"><span class="icon">🔐</span> Admin Panel</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">A</div>
+          <div>
+            <div class="name">Admin User</div>
+            <div class="role">Administrator</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="width:100%;" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="showAppPage('meeting')">+ Start Meeting</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- DASHBOARD -->
+        <div id="page-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="label">Total Employees</div><div class="value">48</div><div class="change up">↑ 12% this month</div></div>
+            <div class="stat-card"><div class="label">Active Clients</div><div class="value">126</div><div class="change up">↑ 8% this month</div></div>
+            <div class="stat-card"><div class="label">Meetings Today</div><div class="value">7</div><div class="change">3 upcoming</div></div>
+            <div class="stat-card"><div class="label">Revenue (MTD)</div><div class="value">$84.2k</div><div class="change up">↑ 18%</div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2>Upcoming Meetings</h2><button class="btn btn-outline btn-sm" onclick="showAppPage('schedule')">View All</button></div>
+            <div class="schedule-list">
+              <div class="schedule-item">
+                <div class="schedule-time">10:00 AM</div>
+                <div class="schedule-info"><h4>Product Strategy Review</h4><p>with Marketing Team • 45 min</p></div>
+                <button class="btn btn-primary btn-sm" onclick="showAppPage('meeting')">Join</button>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-time">02:30 PM</div>
+                <div class="schedule-info"><h4>Client Onboarding — Acme Corp</h4><p>with Sarah & Team • 30 min</p></div>
+                <button class="btn btn-primary btn-sm" onclick="showAppPage('meeting')">Join</button>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-time">04:00 PM</div>
+                <div class="schedule-info"><h4>Weekly Standup</h4><p>All Hands • 20 min</p></div>
+                <button class="btn btn-primary btn-sm" onclick="showAppPage('meeting')">Join</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EMPLOYEES -->
+        <div id="page-employees" class="hidden">
+          <div class="card">
+            <div class="card-header">
+              <h2>Employee Management</h2>
+              <button class="btn btn-primary btn-sm" onclick="openModal('employee')">+ Add Employee</button>
+            </div>
+            <table>
+              <thead>
+                <tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Sarah Ahmed</td><td>Product Manager</td><td>sarah@nexora.com</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                <tr><td>Rahim Khan</td><td>Developer</td><td>rahim@nexora.com</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                <tr><td>Nadia Islam</td><td>Designer</td><td>nadia@nexora.com</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                <tr><td>Karim Hossain</td><td>Sales Lead</td><td>karim@nexora.com</td><td><span class="badge badge-warning">On Leave</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+                <tr><td>Fatima Begum</td><td>HR Manager</td><td>fatima@nexora.com</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CLIENTS -->
+        <div id="page-clients" class="hidden">
+          <div class="card">
+            <div class="card-header">
+              <h2>Client Management</h2>
+              <button class="btn btn-primary btn-sm" onclick="openModal('client')">+ Add Client</button>
+            </div>
+            <table>
+              <thead>
+                <tr><th>Company</th><th>Contact</th><th>Email</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Acme Corporation</td><td>John Smith</td><td>john@acme.com</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-outline btn-sm">View</button></td></tr>
+                <tr><td>TechNova Ltd</td><td>Priya Sharma</td><td>priya@technova.io</td><td><span class="badge badge-success">Active</span></td><td><button class="btn btn-outline btn-sm">View</button></td></tr>
+                <tr><td>GreenLeaf Foods</td><td>Michael Chen</td><td>m.chen@greenleaf.com</td><td><span class="badge badge-info">Lead</span></td><td><button class="btn btn-outline btn-sm">View</button></td></tr>
+                <tr><td>Urban Style</td><td>Ayesha Rahman</td><td>ayesha@urbanstyle.bd</td><td><span class="badge badge-warning">Pending</span></td><td><button class="btn btn-outline btn-sm">View</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SCHEDULE -->
+        <div id="page-schedule" class="hidden">
+          <div class="card">
+            <div class="card-header">
+              <h2>Meeting Schedule</h2>
+              <button class="btn btn-primary btn-sm" onclick="openModal('meeting')">+ Schedule Meeting</button>
+            </div>
+            <div class="schedule-list">
+              <div class="schedule-item">
+                <div class="schedule-time">Today<br>10:00</div>
+                <div class="schedule-info"><h4>Product Strategy Review</h4><p>Marketing Team • Google Meet</p></div>
+                <span class="badge badge-info">Upcoming</span>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-time">Today<br>14:30</div>
+                <div class="schedule-info"><h4>Client Onboarding — Acme Corp</h4><p>Sarah, Rahim • Zoom</p></div>
+                <span class="badge badge-info">Upcoming</span>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-time">Tomorrow<br>11:00</div>
+                <div class="schedule-info"><h4>Design Review Session</h4><p>Design Team • NEXORA Meet</p></div>
+                <span class="badge badge-success">Scheduled</span>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-time">Wed<br>09:30</div>
+                <div class="schedule-info"><h4>Weekly All-Hands</h4><p>Entire Company</p></div>
+                <span class="badge badge-success">Scheduled</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE MEETING -->
+        <div id="page-meeting" class="hidden">
+          <div class="meeting-room">
+            <div class="video-area">
+              <div class="participants">
+                <div class="participant"><div class="avatar">SA</div><div class="name">Sarah A.</div></div>
+                <div class="participant"><div class="avatar">RK</div><div class="name">Rahim K.</div></div>
+                <div class="participant"><div class="avatar">NI</div><div class="name">Nadia I.</div></div>
+                <div class="participant"><div class="avatar">You</div><div class="name">You (Host)</div></div>
+              </div>
+              <div class="video-placeholder">
+                <div class="big-icon">📹</div>
+                <p>Live Group Video Meeting</p>
+                <p style="font-size:0.85rem;margin-top:0.4rem;">Screen sharing ready • 4 participants</p>
+              </div>
+              <div class="meeting-controls">
+                <button class="control-btn" title="Mute">🎤</button>
+                <button class="control-btn" title="Camera">📷</button>
+                <button class="control-btn active" title="Share Screen">🖥️</button>
+                <button class="control-btn" title="Chat">💬</button>
+                <button class="control-btn" title="Participants">👥</button>
+                <button class="control-btn danger" title="Leave" onclick="showAppPage('dashboard')">📞</button>
+              </div>
+            </div>
+            <div class="chat-panel">
+              <div class="chat-header">Meeting Chat</div>
+              <div class="chat-messages" id="meetingChat">
+                <div class="chat-msg"><div class="bubble">Hello everyone, let's start the review.</div><div class="meta">Sarah • 10:01</div></div>
+                <div class="chat-msg me"><div class="bubble">Sharing my screen now.</div><div class="meta">You • 10:02</div></div>
+                <div class="chat-msg"><div class="bubble">Looking good!</div><div class="meta">Rahim • 10:03</div></div>
+              </div>
+              <div class="chat-input-area">
+                <input type="text" id="meetingChatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMeetingChat()">
+                <button class="btn btn-primary btn-sm" onclick="sendMeetingChat()">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE CHAT -->
+        <div id="page-chat" class="hidden">
+          <div class="card" style="height: calc(100vh - 180px); display:flex; flex-direction:column;">
+            <div class="card-header"><h2>Team Live Chat</h2></div>
+            <div class="chat-messages" id="teamChat" style="flex:1;">
+              <div class="chat-msg"><div class="bubble">Good morning team! Any updates on the Acme project?</div><div class="meta">Sarah • 09:15</div></div>
+              <div class="chat-msg"><div class="bubble">Yes, the designs are ready for review.</div><div class="meta">Nadia • 09:18</div></div>
+              <div class="chat-msg me"><div class="bubble">Great, let's discuss in the 10 AM meeting.</div><div class="meta">You • 09:20</div></div>
+              <div class="chat-msg"><div class="bubble">I'll prepare the presentation.</div><div class="meta">Rahim • 09:22</div></div>
+            </div>
+            <div class="chat-input-area">
+              <input type="text" id="teamChatInput" placeholder="Message the team..." onkeypress="if(event.key==='Enter') sendTeamChat()">
+              <button class="btn btn-primary btn-sm" onclick="sendTeamChat()">Send</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div id="page-admin" class="hidden">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="label">Total Users</div><div class="value">54</div></div>
+            <div class="stat-card"><div class="label">Active Sessions</div><div class="value">23</div></div>
+            <div class="stat-card"><div class="label">Storage Used</div><div class="value">68%</div></div>
+            <div class="stat-card"><div class="label">System Status</div><div class="value" style="color:var(--success);">Healthy</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Admin Controls</h2></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+              <button class="btn btn-outline" style="justify-content:flex-start;padding:1rem;">👤 Manage User Roles</button>
+              <button class="btn btn-outline" style="justify-content:flex-start;padding:1rem;">⚙️ System Settings</button>
+              <button class="btn btn-outline" style="justify-content:flex-start;padding:1rem;">📊 Usage Analytics</button>
+              <button class="btn btn-outline" style="justify-content:flex-start;padding:1rem;">🔒 Security & Permissions</button>
+              <button class="btn btn-outline" style="justify-content:flex-start;padding:1rem;">📧 Email Templates</button>
+              <button class="btn btn-outline" style="justify-content:flex-start;padding:1rem;">🗄️ Database Backup</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Recent Admin Activity</h2></div>
+            <table>
+              <thead><tr><th>Action</th><th>User</th><th>Time</th></tr></thead>
+              <tbody>
+                <tr><td>Added new employee</td><td>Admin User</td><td>2 hours ago</td></tr>
+                <tr><td>Updated client status</td><td>Admin User</td><td>5 hours ago</td></tr>
+                <tr><td>Created meeting room</td><td>Sarah Ahmed</td><td>Yesterday</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <script type="module" src="./main.jsx"></script>
+  <!-- MODAL -->
+  <div id="modalOverlay" class="modal-overlay hidden" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3 id="modalTitle">Add Item</h3>
+      <div id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== VIEW MANAGEMENT ==========
+    function showView(view) {
+      document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('view-' + view).classList.remove('hidden');
+    }
+
+    function login() {
+      // Mock login
+      showView('app');
+      showAppPage('dashboard');
+    }
+
+    function register() {
+      alert('Account created successfully! Please login.');
+      showView('login');
+    }
+
+    function logout() {
+      showView('landing');
+    }
+
+    // ========== APP PAGES ==========
+    const pageTitles = {
+      dashboard: 'Dashboard',
+      employees: 'Employee Management',
+      clients: 'Client Management',
+      schedule: 'Meeting Schedule',
+      meeting: 'Live Group Meeting',
+      chat: 'Live Chat',
+      admin: 'Admin Panel'
+    };
+
+    function showAppPage(page) {
+      document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('page-' + page).classList.remove('hidden');
+      document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+
+      // Update active nav
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.querySelector(`.nav-item[data-page="${page}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // ========== CHAT ==========
+    function sendMeetingChat() {
+      const input = document.getElementById('meetingChatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const container = document.getElementById('meetingChat');
+      const div = document.createElement('div');
+      div.className = 'chat-msg me';
+      div.innerHTML = `<div class="bubble">${text}</div><div class="meta">You • just now</div>`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      input.value = '';
+    }
+
+    function sendTeamChat() {
+      const input = document.getElementById('teamChatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const container = document.getElementById('teamChat');
+      const div = document.createElement('div');
+      div.className = 'chat-msg me';
+      div.innerHTML = `<div class="bubble">${text}</div><div class="meta">You • just now</div>`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      input.value = '';
+    }
+
+    // ========== MODAL ==========
+    function openModal(type) {
+      const titles = { employee: 'Add Employee', client: 'Add Client', meeting: 'Schedule Meeting' };
+      document.getElementById('modalTitle').textContent = titles[type] || 'Add';
+      let body = '';
+      if (type === 'employee') {
+        body = `
+          <div class="form-group"><label>Full Name</label><input type="text" placeholder="Full name"></div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="email@company.com"></div>
+          <div class="form-group"><label>Role</label><select><option>Developer</option><option>Designer</option><option>Manager</option><option>Sales</option></select></div>
+        `;
+      } else if (type === 'client') {
+        body = `
+          <div class="form-group"><label>Company Name</label><input type="text" placeholder="Company Ltd."></div>
+          <div class="form-group"><label>Contact Person</label><input type="text" placeholder="Contact name"></div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="contact@company.com"></div>
+        `;
+      } else {
+        body = `
+          <div class="form-group"><label>Meeting Title</label><input type="text" placeholder="Meeting title"></div>
+          <div class="form-group"><label>Date & Time</label><input type="datetime-local"></div>
+          <div class="form-group"><label>Participants</label><input type="text" placeholder="Select team members"></div>
+        `;
+      }
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
+    // Start on landing
+    showView('landing');
+  </script>
 </body>
 </html>
