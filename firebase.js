@@ -1,216 +1,188 @@
+/**
+ * NEXORA — Vanilla JS (fallback / simple version)
+ * For full React version use: npm run dev  (src/App.jsx)
+ */
 
-import { initializeApp } from "firebase/app";
+// ========== VIEW MANAGEMENT ==========
+function showView(viewName) {
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.classList.add('hidden');
+  });
+  const target = document.querySelector(`[data-view="${viewName}"]`);
+  if (target) target.classList.remove('hidden');
+}
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  updateProfile
-} from "firebase/auth";
+function showAppPage(pageName) {
+  document.querySelectorAll('[data-page]').forEach(el => {
+    el.classList.add('hidden');
+  });
+  const target = document.querySelector(`[data-page="${pageName}"]`);
+  if (target) target.classList.remove('hidden');
 
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  doc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp
-} from "firebase/firestore";
-
-/* =====================================
-   NEXORA FIREBASE CONFIGURATION
-===================================== */
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAjYGvWfgEAe-wYGwAsa3wwN3_V09FDRXk",
-  authDomain: "nexora-fb9ed.firebaseapp.com",
-  projectId: "nexora-fb9ed",
-  storageBucket: "nexora-fb9ed.firebasestorage.app",
-  messagingSenderId: "1082698782543",
-  appId: "1:1082698782543:web:9ea8ac7e30647b3f25173a",
-  measurementId: "G-Q44VLSD8MT"
-};
-
-/* =====================================
-   INITIALIZE FIREBASE
-===================================== */
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-const db = getFirestore(app);
-
-/* =====================================
-   USER AUTHENTICATION
-===================================== */
-
-export async function registerUser(name, email, password) {
-  const result = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-
-  await updateProfile(result.user, {
-    displayName: name
+  // Update sidebar active state
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.nav === pageName) btn.classList.add('active');
   });
 
-  await setDoc(doc(db, "users", result.user.uid), {
-    uid: result.user.uid,
-    name,
-    email,
-    role: "user",
-    createdAt: serverTimestamp()
-  });
-
-  return result.user;
+  // Update topbar title
+  const titles = {
+    dashboard: 'Dashboard',
+    employees: 'Employee Management',
+    clients: 'Client Management',
+    schedule: 'Meeting Schedule',
+    meeting: 'Live Group Meeting',
+    chat: 'Live Chat',
+    admin: 'Admin Panel'
+  };
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = titles[pageName] || pageName;
 }
 
-export async function loginUser(email, password) {
-  const result = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
-
-  return result.user;
+// ========== AUTH ==========
+function login(e) {
+  if (e) e.preventDefault();
+  showView('app');
+  showAppPage('dashboard');
 }
 
-export async function logoutUser() {
-  return await signOut(auth);
+function register(e) {
+  if (e) e.preventDefault();
+  alert('Account created successfully! Please login.');
+  showView('login');
 }
 
-export function observeAuth(callback) {
-  return onAuthStateChanged(auth, callback);
+function logout() {
+  showView('landing');
 }
 
-/* =====================================
-   USER PROFILE
-===================================== */
-
-export async function getUserProfile(uid) {
-  const snapshot = await getDoc(doc(db, "users", uid));
-
-  return snapshot.exists() ? snapshot.data() : null;
+// ========== SIDEBAR (Mobile) ==========
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('open');
 }
 
-export async function updateUserProfile(uid, data) {
-  return await updateDoc(doc(db, "users", uid), data);
+// ========== CHAT ==========
+function sendChat(inputId, containerId) {
+  const input = document.getElementById(inputId);
+  const container = document.getElementById(containerId);
+  if (!input || !container) return;
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msg = document.createElement('div');
+  msg.className = 'chat-msg me';
+  msg.innerHTML = `
+    <div class="bubble">${escapeHtml(text)}</div>
+    <div class="meta">You • just now</div>
+  `;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+  input.value = '';
 }
 
-/* =====================================
-   EMPLOYEE MANAGEMENT
-===================================== */
-
-export async function addEmployee(data) {
-  return await addDoc(collection(db, "employees"), {
-    ...data,
-    createdAt: serverTimestamp()
-  });
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
-export async function getEmployees() {
-  const snapshot = await getDocs(collection(db, "employees"));
-
-  return snapshot.docs.map(item => ({
-    id: item.id,
-    ...item.data()
-  }));
+// Meeting chat
+function sendMeetingChat() {
+  sendChat('meetingChatInput', 'meetingChat');
 }
 
-export async function deleteEmployee(id) {
-  return await deleteDoc(doc(db, "employees", id));
+// Team chat
+function sendTeamChat() {
+  sendChat('teamChatInput', 'teamChat');
 }
 
-/* =====================================
-   CLIENT MANAGEMENT
-===================================== */
+// ========== MODAL ==========
+function openModal(type) {
+  const overlay = document.getElementById('modalOverlay');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  if (!overlay || !title || !body) return;
 
-export async function addClient(data) {
-  return await addDoc(collection(db, "clients"), {
-    ...data,
-    createdAt: serverTimestamp()
-  });
+  const titles = {
+    employee: 'Add Employee',
+    client: 'Add Client',
+    meeting: 'Schedule Meeting'
+  };
+  title.textContent = titles[type] || 'Add';
+
+  let html = '';
+  if (type === 'employee') {
+    html = `
+      <div class="form-group"><label>Full Name</label><input type="text" placeholder="Full name"></div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="email@company.com"></div>
+      <div class="form-group"><label>Role</label>
+        <select>
+          <option>Developer</option>
+          <option>Designer</option>
+          <option>Manager</option>
+          <option>Sales</option>
+        </select>
+      </div>
+    `;
+  } else if (type === 'client') {
+    html = `
+      <div class="form-group"><label>Company Name</label><input type="text" placeholder="Company Ltd."></div>
+      <div class="form-group"><label>Contact Person</label><input type="text" placeholder="Contact name"></div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="contact@company.com"></div>
+    `;
+  } else {
+    html = `
+      <div class="form-group"><label>Meeting Title</label><input type="text" placeholder="Meeting title"></div>
+      <div class="form-group"><label>Date & Time</label><input type="datetime-local"></div>
+      <div class="form-group"><label>Participants</label><input type="text" placeholder="Select team members"></div>
+    `;
+  }
+  body.innerHTML = html;
+  overlay.classList.remove('hidden');
 }
 
-export async function getClients() {
-  const snapshot = await getDocs(collection(db, "clients"));
-
-  return snapshot.docs.map(item => ({
-    id: item.id,
-    ...item.data()
-  }));
+function closeModal() {
+  const overlay = document.getElementById('modalOverlay');
+  if (overlay) overlay.classList.add('hidden');
 }
 
-export async function deleteClient(id) {
-  return await deleteDoc(doc(db, "clients", id));
-}
+// Close modal on overlay click
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
 
-/* =====================================
-   REAL-TIME TEAM MESSAGES
-===================================== */
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', () => {
+  // Default: show landing
+  showView('landing');
 
-export async function sendTeamMessage(data) {
-  return await addDoc(collection(db, "messages"), {
-    ...data,
-    createdAt: serverTimestamp()
-  });
-}
+  // Enter key support for chat inputs
+  const meetingInput = document.getElementById('meetingChatInput');
+  if (meetingInput) {
+    meetingInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMeetingChat();
+    });
+  }
+  const teamInput = document.getElementById('teamChatInput');
+  if (teamInput) {
+    teamInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendTeamChat();
+    });
+  }
+});
 
-export function listenToMessages(callback) {
-  const messagesQuery = query(
-    collection(db, "messages"),
-    orderBy("createdAt", "asc")
-  );
-
-  return onSnapshot(messagesQuery, snapshot => {
-    callback(
-      snapshot.docs.map(item => ({
-        id: item.id,
-        ...item.data()
-      }))
-    );
-  });
-}
-
-/* =====================================
-   MEETING MANAGEMENT
-===================================== */
-
-export async function createMeeting(data) {
-  return await addDoc(collection(db, "meetings"), {
-    ...data,
-    createdAt: serverTimestamp()
-  });
-}
-
-export async function getMeetings() {
-  const snapshot = await getDocs(collection(db, "meetings"));
-
-  return snapshot.docs.map(item => ({
-    id: item.id,
-    ...item.data()
-  }));
-}
-
-/* =====================================
-   EXPORTS
-===================================== */
-
-export {
-  app,
-  auth,
-  db,
-  collection,
-  serverTimestamp
+// Export for global use
+window.NEXORA = {
+  showView,
+  showAppPage,
+  login,
+  register,
+  logout,
+  toggleSidebar,
+  sendMeetingChat,
+  sendTeamChat,
+  openModal,
+  closeModal
 };
